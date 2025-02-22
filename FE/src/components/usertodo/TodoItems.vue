@@ -16,21 +16,17 @@ const getPreviousStage = () => {
   return "";
 }
 
-// 메뉴 토글 상태
 const showMenu = ref(false);
 
-// 메뉴 열기/닫기 함수
 const toggleMenu = (event) => {
   event.stopPropagation();
   showMenu.value = !showMenu.value;
 };
 
-// 화면 클릭 시 메뉴 닫기
 const closeMenu = () => {
   showMenu.value = false;
 };
 
-// 컴포넌트가 마운트될 때 클릭 이벤트 리스너 추가
 onMounted(() => {
   window.addEventListener("click", closeMenu);
 });
