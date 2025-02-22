@@ -1,10 +1,10 @@
 <script setup>
-import LoginForm from '@/components/login/LoginForm.vue';
+import SignUpForm from '@/components/signup/SignUpForm.vue';
 </script>
 
 <template>
   <div class="px-10 py-5 w-full h-full flex justify-center items-center">
-    <LoginForm />
+    <SignUpForm />
   </div>
 </template>
 
