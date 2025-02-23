@@ -7,7 +7,7 @@
 <template>
   <div class="w-full min-h-screen flex bg-[#202D48]">
     <!-- Sidebar -->
-    <nav class="w-1/6 min-w-[140px] h-full bg-[#202D48]">
+    <nav class="w-1/6 min-w-[200px] max-w-[250px] h-full bg-[#202D48]">
       <Navbar />
     </nav>
 
@@ -17,10 +17,10 @@
     </main>
   </div>
 
-  <!-- Footer -->
-  <footer class="w-full min-h-[80px] bg-[#C4D0EB] text-center flex items-center justify-center">
-    <MyFooter />
-  </footer>
+    <!-- Footer -->
+    <footer class="w-full min-h-[80px] bg-[#C4D0EB] text-center flex items-center justify-center">
+      <MyFooter />
+    </footer>
 </template>
 
 <style>

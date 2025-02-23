@@ -3,7 +3,7 @@ import AuthForm from '@/components/login/AuthForm.vue';
 
 import { ref } from 'vue';
 import { useAuthStore } from '@/store/useAuthStore';
-import { useRouter } from 'vue-router';
+import { useRouter, RouterLink } from 'vue-router';
 
 const authStore = useAuthStore();
 const router = useRouter();
@@ -39,9 +39,9 @@ const register = async () => {
     </div>
   </AuthForm>
   <div class="w-full flex justify-center mt-4">
-      <a href="/login" class="w-2/3 bg-transparent border-2 border-[#202D48] text-[#202D48] hover:bg-[#202D48] hover:text-white hover:cursor-pointer duration-150 font-bold text-2xl rounded-xl py-3 text-center">
+      <RouterLink to="/login" class="w-2/3 bg-transparent border-2 border-[#202D48] text-[#202D48] hover:bg-[#202D48] hover:text-white hover:cursor-pointer duration-150 font-bold text-2xl rounded-xl py-3 text-center">
         Go To Log In
-      </a>
+      </RouterLink>
     </div>
   </div>
 </template>

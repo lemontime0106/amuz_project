@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from "vue";
-import { useRouter } from 'vue-router';
+import { useRouter, RouterLink } from 'vue-router';
 import AuthForm from './AuthForm.vue';
 import { useAuthStore } from '@/store/useAuthStore';
 
@@ -15,7 +15,7 @@ const login = async () => {
     const user = await authStore.login(email.value, password.value);
     console.log(user)
     if (user) {
-      console.log("Login successful:", user.uid, user.email);
+      // console.log("Login successful:", user.uid, user.email);
       router.push("/");
     }
   } catch (error) {
@@ -45,9 +45,9 @@ const login = async () => {
       </div>
     </AuthForm>
     <div class="w-full flex justify-center mt-4">
-      <a href="/signup" class="w-2/3 bg-transparent border-2 border-[#202D48] text-[#202D48] hover:bg-[#202D48] hover:text-white hover:cursor-pointer duration-150 font-bold text-2xl rounded-xl py-3 text-center">
+      <RouterLink to="/signup" class="w-2/3 bg-transparent border-2 border-[#202D48] text-[#202D48] hover:bg-[#202D48] hover:text-white hover:cursor-pointer duration-150 font-bold text-2xl rounded-xl py-3 text-center">
         Go To Sign Up
-      </a>
+      </RouterLink>
     </div>
   </div>
 </template>

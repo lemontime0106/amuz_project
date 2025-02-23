@@ -9,11 +9,16 @@ import {
 export const useAuthStore = defineStore("authStore", {
   state: () => ({
     user: null,
+    userAccessToken: localStorage.getItem("userAccessToken") || null,
+    userEmail: localStorage.getItem("userEmail") || null,
+    isLogIn: !!localStorage.getItem("userAccessToken"),
   }),
 
   getters: {
     isAuthenticated: (state) => !!state.user,
     getUser: (state) => state.user,
+    getUserEmail: (state) => state.userEmail,
+    gerUserToken: (state) => state.userAccessToken,
   },
 
   actions: {
@@ -42,7 +47,13 @@ export const useAuthStore = defineStore("authStore", {
           password
         );
         this.user = userCredential.user;
-        console.log("Login successful:", this.user);
+        // console.log("Login successful:", this.user);
+        this.userAccessToken = await this.user.getIdToken();
+        localStorage.setItem("userAccessToken", this.userAccessToken);
+        this.isLogIn = true;
+        localStorage.setItem("userEmail", this.user.email);
+        this.userEmail = this.user.email;
+
         return this.user;
       } catch (error) {
         console.error("Login error:", error);
@@ -55,6 +66,10 @@ export const useAuthStore = defineStore("authStore", {
       try {
         await signOut(auth);
         this.user = null;
+        this.userAccessToken = null;
+        this.userEmail = null;
+        this.isLogIn = false;
+        localStorage.removeItem("userAccessToken");
         console.log("Logout successful");
       } catch (error) {
         console.error("Logout error:", error);

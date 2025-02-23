@@ -1,6 +1,8 @@
 <script setup>
 import { ref, onMounted } from 'vue';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 const typingText1 = ref('');
 const typingText2 = ref('');
 const fullText1 = "To-Do-List";
@@ -27,13 +29,22 @@ const typeText2 = () => {
   }
 };
 
+const goToTodos = () => {
+  const isLogIn = !!localStorage.getItem("userAccessToken");
+  if (isLogIn) {
+    router.push("/todos");
+  } else {
+    router.push("/login");
+  }
+};
+
 onMounted(() => {
   typeText1();
 });
 </script>
 
 <template>
-  <main class="flex flex-col items-center text-center p-10">
+  <main class="flex flex-col items-center justify-center text-center">
     <!-- 헤더 섹션 -->
     <div class="flex flex-col items-center gap-4">
       <h1 class="text-5xl font-bold">{{ typingText1 }}<span class="animate-blink">|</span></h1>
@@ -43,13 +54,13 @@ onMounted(() => {
       </h3>
     </div>
 
-    <!-- 메인 이미지 (호버 시 애니메이션 & 버튼) -->
+    <!-- 메인 이미지 -->
     <div class="relative group w-2/3 mt-6">
       <img src="/main.png" alt="메인이미지" class="w-full transition-transform duration-150 group-hover:scale-105 group-hover:brightness-75 rounded-xl">
       <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-        <a href="/todos" class="bg-[#202D48] text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-lg hover:bg-[#334977] transition">
-          바로가기 🚀
-        </a>
+        <button @click="goToTodos" class="bg-[#202D48] text-white px-6 py-3 rounded-lg text-lg font-semibold shadow-lg hover:bg-[#334977] transition">
+          바로가기
+        </button>
       </div>
     </div>
   </main>
