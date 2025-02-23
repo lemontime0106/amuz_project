@@ -1,47 +1,32 @@
 import { defineStore } from "pinia";
+import { db } from "../firebaseConfig";
+import {
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+} from "firebase/firestore";
+import { useAuthStore } from "@/store/useAuthStore";
 
 export const useTodoStore = defineStore("todoStore", {
   state: () => ({
     searchQuery: "",
     sortOrder: "desc",
-    todos: JSON.parse(localStorage.getItem("todos")) || [
-      {
-        id: 1,
-        title: "Vue 공부",
-        description: "Vue 3 Composition API 학습하기",
-        priority: "High",
-        stage: "To Start",
-      },
-      {
-        id: 2,
-        title: "Tailwind 적용",
-        description: "Tailwind CSS 적용",
-        priority: "Medium",
-        stage: "To Start",
-      },
-      {
-        id: 3,
-        title: "API 연동",
-        description: "Axios, Vuex, Vue Router, JWT, JWT-Decode",
-        priority: "Low",
-        stage: "To Start",
-      },
-    ],
-  }),
-
-  getters: {
-    // 우선순위 매핑
-    priorityOrder: () => ({
+    todos: [],
+    priorityOrder: {
       High: 1,
       Medium: 2,
       Low: 3,
-    }),
+    },
+  }),
 
-    // 검색어
+  getters: {
     filteredTodos: (state) => {
-      let result = state.todos;
+      let result = [...state.todos];
 
-      if (state.searchQuery) {
+      if (state.searchQuery.trim()) {
         result = result.filter(
           (todo) =>
             todo.title
@@ -70,59 +55,105 @@ export const useTodoStore = defineStore("todoStore", {
   },
 
   actions: {
-    setSearchQuery(query) {
-      this.searchQuery = query;
-    },
-
     toggleSortOrder() {
       this.sortOrder = this.sortOrder === "desc" ? "asc" : "desc";
     },
 
-    addTodo(newTodo) {
-      const id = Date.now().toString();
-      this.todos.push({ id, ...newTodo, stage: "To Start" });
-      this.saveToLocalStorage();
+    setSearchQuery(query) {
+      this.searchQuery = query;
     },
 
-    editTodo(updatedTodo) {
+    async fetchTodos() {
+      const authStore = useAuthStore();
+      if (!authStore.user || !authStore.user.uid) return;
+
+      const userId = authStore.user.uid;
+      const todosRef = collection(db, `todos/${userId}/items`);
+      try {
+        const snapshot = await getDocs(todosRef);
+        this.todos = snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
+        console.log("fetch completed");
+      } catch (error) {
+        console.log("fetch failed", error);
+      }
+    },
+
+    async addTodo(newTodo) {
+      const authStore = useAuthStore();
+      if (!authStore.user || !authStore.user.uid) {
+        console.log("로그인 X");
+        return;
+      }
+
+      const userId = authStore.user.uid;
+      const todosRef = collection(db, `todos/${userId}/items`);
+
+      try {
+        const newTodoRef = doc(todosRef);
+        await setDoc(newTodoRef, {
+          ...newTodo,
+          stage: "To Start",
+          createdAt: new Date(),
+        });
+
+        console.log("새 Todo 추가 완료:", newTodoRef.id);
+
+        await this.fetchTodos();
+      } catch (error) {
+        console.error("Todo 추가 중 오류 발생", error);
+      }
+    },
+
+    async editTodo(updatedTodo) {
+      const authStore = useAuthStore();
+      if (!authStore.user || !authStore.user.uid) return;
+
+      const userId = authStore.user.uid;
+      const todoRef = doc(db, `todos/${userId}/items/${updatedTodo.id}`);
+      await updateDoc(todoRef, updatedTodo);
+
       const index = this.todos.findIndex((todo) => todo.id === updatedTodo.id);
-      if (index !== -1) {
-        this.todos[index] = { ...updatedTodo };
-        this.saveToLocalStorage();
-      }
+      if (index !== -1) this.todos[index] = updatedTodo;
     },
 
-    deleteTodo(todoId) {
+    async deleteTodo(todoId) {
+      const authStore = useAuthStore();
+      if (!authStore.user || !authStore.user.uid) return;
+
+      const userId = authStore.user.uid;
+      const todoRef = doc(db, `todos/${userId}/items/${todoId}`);
+      await deleteDoc(todoRef);
+
       this.todos = this.todos.filter((todo) => todo.id !== todoId);
-      this.saveToLocalStorage();
     },
 
-    moveToNextStage(todo) {
+    async moveToNextStage(todo) {
+      const authStore = useAuthStore();
+      if (!authStore.user || !authStore.user.uid) return;
+
+      const userId = authStore.user.uid;
+      const todoRef = doc(db, `todos/${userId}/items/${todo.id}`);
+      const newStage = todo.stage === "To Start" ? "In Progress" : "Completed";
+      await updateDoc(todoRef, { stage: newStage });
+
       const index = this.todos.findIndex((t) => t.id === todo.id);
-      if (index !== -1) {
-        if (this.todos[index].stage === "To Start") {
-          this.todos[index].stage = "In Progress";
-        } else if (this.todos[index].stage === "In Progress") {
-          this.todos[index].stage = "Completed";
-        }
-        this.saveToLocalStorage();
-      }
+      if (index !== -1) this.todos[index].stage = newStage;
     },
 
-    moveToPreviousStage(todo) {
+    async moveToPreviousStage(todo) {
+      const authStore = useAuthStore();
+      if (!authStore.user || !authStore.user.uid) return;
+
+      const userId = authStore.user.uid;
+      const todoRef = doc(db, `todos/${userId}/items/${todo.id}`);
+      const newStage = todo.stage === "Completed" ? "In Progress" : "To Start";
+      await updateDoc(todoRef, { stage: newStage });
+
       const index = this.todos.findIndex((t) => t.id === todo.id);
-      if (index !== -1) {
-        if (this.todos[index].stage === "In Progress") {
-          this.todos[index].stage = "To Start";
-        } else if (this.todos[index].stage === "Completed") {
-          this.todos[index].stage = "In Progress";
-        }
-        this.saveToLocalStorage();
-      }
-    },
-
-    saveToLocalStorage() {
-      localStorage.setItem("todos", JSON.stringify(this.todos));
+      if (index !== -1) this.todos[index].stage = newStage;
     },
   },
 });

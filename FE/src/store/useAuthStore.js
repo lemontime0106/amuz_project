@@ -4,6 +4,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
+  onAuthStateChanged,
 } from "firebase/auth";
 
 export const useAuthStore = defineStore("authStore", {
@@ -19,6 +20,7 @@ export const useAuthStore = defineStore("authStore", {
     getUser: (state) => state.user,
     getUserEmail: (state) => state.userEmail,
     gerUserToken: (state) => state.userAccessToken,
+    getUserId: (state) => state.user?.uid || null,
   },
 
   actions: {
@@ -74,6 +76,22 @@ export const useAuthStore = defineStore("authStore", {
       } catch (error) {
         console.error("Logout error:", error);
       }
+    },
+    initAuth() {
+      const auth = getAuth();
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          this.user = user;
+          this.userAccessToken = user.getIdToken();
+          this.isLogIn = true;
+          console.log("loginstate : login :", user.uid);
+        } else {
+          this.user = null;
+          this.userAccessToken = null;
+          this.isLogIn = false;
+          console.log("loginstate : logout");
+        }
+      });
     },
   },
 });

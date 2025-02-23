@@ -1,22 +1,35 @@
 <script setup>
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import TodoItems from "./TodoItems.vue";
 import Modal from "./Modal.vue";
 import AddTodoForm from "./AddTodoForm.vue";
 import EditTodoForm from "./EditTodoForm.vue";
 import { useTodoStore } from "@/store/useTodoStore";
+import { useAuthStore } from "@/store/useAuthStore";
+
 
 const todoStore = useTodoStore();
+const authStore = useAuthStore();
+
+watch(
+  () => authStore.user,
+  async (newUser) => {
+    if (newUser) {
+      await todoStore.fetchTodos();
+    }
+  },
+  { immediate: true }
+);
 
 const filteredTodos = computed(() => todoStore.filteredTodos);
 
-const moveToNextStage = (todo) => {
-  todoStore.moveToNextStage(todo);
+const moveToNextStage = async (todo) => {
+  await todoStore.moveToNextStage(todo);
 };
 
-const moveToPreviousStage = (todo) => {
-  todoStore.moveToPreviousStage(todo);
-}
+const moveToPreviousStage = async (todo) => {
+  await todoStore.moveToPreviousStage(todo);
+};
 
 const showAddModal = ref(false);
 const newTodo = ref({
@@ -25,12 +38,13 @@ const newTodo = ref({
   priority: "Medium",
 });
 
-const addNewTodo = () => {
+const addNewTodo = async () => {
   if (!newTodo.value.title.trim()) return;
-  todoStore.addTodo(newTodo.value);
+  await todoStore.addTodo(newTodo.value);
+  await todoStore.fetchTodos();
   newTodo.value = { title: "", description: "", priority: "Medium" };
   showAddModal.value = false;
-}
+};
 
 const showEditModal = ref(false);
 const editingTodo = ref(null);
@@ -40,14 +54,16 @@ const editTodo = (todo) => {
   showEditModal.value = true;
 };
 
-const saveTodo = () => {
+const saveTodo = async () => {
   if (!editingTodo.value || !editingTodo.value.title.trim()) return;
-  todoStore.editTodo(editingTodo.value);
+  await todoStore.editTodo(editingTodo.value);
+  await todoStore.fetchTodos();
   showEditModal.value = false;
 };
 
-const deleteTodo = (todoId) => {
-  todoStore.deleteTodo(todoId);
+const deleteTodo = async (todoId) => {
+  await todoStore.deleteTodo(todoId);
+  await todoStore.fetchTodos();
 };
 </script>
 
@@ -72,14 +88,13 @@ const deleteTodo = (todoId) => {
         </template>
         <p v-else class="text-gray-500 text-center text-lg py-4">No search results</p>
 
+        <!-- Add Todo -->
         <button 
           @click="showAddModal = true"
           class="border-2 border-dashed rounded-xl border-gray-400 text-gray-500 hover:text-black hover:border-black duration-150 w-full text-3xl font-bold flex justify-center items-center gap-4 px-4 py-3"
         >
           <font-awesome-icon :icon="['fas', 'plus']" />
-          <p>
-            Add Todo
-          </p>
+          <p>Add Todo</p>
         </button>
       </div>
     </div>
@@ -139,11 +154,15 @@ const deleteTodo = (todoId) => {
   </Modal>
 
   <!-- 수정 모달 -->
-  <Modal :show="showEditModal" title="Edit Todo" @close="showEditModal = false" @confirm="saveTodo">
+  <Modal 
+    :show="showEditModal" 
+    title="Edit Todo" 
+    @close="showEditModal = false" 
+    @confirm="saveTodo"
+  >
     <EditTodoForm v-model:todo="editingTodo" />
   </Modal>
 </template>
 
 <style scoped>
-
 </style>

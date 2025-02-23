@@ -8,6 +8,10 @@ import router from "./router";
 import "./firebaseConfig.js";
 // firebase
 
+// authStore
+import { useAuthStore } from "@/store/useAuthStore";
+// authStore
+
 // fort-awesome
 import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
@@ -20,7 +24,11 @@ library.add(fas, far, fab);
 // fort-awesome
 
 const app = createApp(App);
+const pinia = createPinia();
+
 app.component("font-awesome-icon", FontAwesomeIcon);
 app.use(router);
-app.use(createPinia());
+app.use(pinia);
+const authStore = useAuthStore();
+authStore.initAuth();
 app.mount("#app");
