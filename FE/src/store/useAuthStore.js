@@ -33,9 +33,9 @@ export const useAuthStore = defineStore("authStore", {
           password
         );
         this.user = userCredential.user;
-        console.log("Registration successful:", this.user);
+        // console.log("Registration successful:", this.user);
       } catch (error) {
-        console.error("Registration error:", error);
+        // console.error("Registration error:", error);
         throw error;
       }
     },
@@ -72,9 +72,9 @@ export const useAuthStore = defineStore("authStore", {
         this.userEmail = null;
         this.isLogIn = false;
         localStorage.removeItem("userAccessToken");
-        console.log("Logout successful");
+        // console.log("Logout successful");
       } catch (error) {
-        console.error("Logout error:", error);
+        // console.error("Logout error:", error);
       }
     },
     initAuth() {
@@ -84,12 +84,12 @@ export const useAuthStore = defineStore("authStore", {
           this.user = user;
           this.userAccessToken = user.getIdToken();
           this.isLogIn = true;
-          console.log("loginstate : login :", user.uid);
+          // console.log("loginstate : login :", user.uid);
         } else {
           this.user = null;
           this.userAccessToken = null;
           this.isLogIn = false;
-          console.log("loginstate : logout");
+          // console.log("loginstate : logout");
         }
       });
     },

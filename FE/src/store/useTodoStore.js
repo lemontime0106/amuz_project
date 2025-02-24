@@ -75,16 +75,16 @@ export const useTodoStore = defineStore("todoStore", {
           id: doc.id,
           ...doc.data(),
         }));
-        console.log("fetch completed");
+        // console.log("fetch completed");
       } catch (error) {
-        console.log("fetch failed", error);
+        // console.log("fetch failed", error);
       }
     },
 
     async addTodo(newTodo) {
       const authStore = useAuthStore();
       if (!authStore.user || !authStore.user.uid) {
-        console.log("로그인 X");
+        // console.log("로그인 X");
         return;
       }
 
@@ -99,11 +99,11 @@ export const useTodoStore = defineStore("todoStore", {
           createdAt: new Date(),
         });
 
-        console.log("새 Todo 추가 완료:", newTodoRef.id);
+        // console.log("새 Todo 추가 완료:", newTodoRef.id);
 
         await this.fetchTodos();
       } catch (error) {
-        console.error("Todo 추가 중 오류 발생", error);
+        // console.error("Todo 추가 중 오류 발생", error);
       }
     },
 
