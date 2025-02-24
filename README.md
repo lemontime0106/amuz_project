@@ -5,7 +5,8 @@ Vue3 + Firebase 기반으로 제작한 Todolist
 
 ## 구현 사항
 회원가입 및 로그인 (Firebase Authentication) <br>
-To-Do 리스트 CRUD (추가, 수정, 삭제, 이동) <br>
+Todolist CRUD (추가, 수정, 삭제, 이동) <br>
+Todolist 우선순위 및 검색 <br>
 로그인한 유저별 데이터 저장 (Firestore 연동) <br>
 Pinia를 활용한 상태 관리
 
@@ -22,6 +23,9 @@ Hosting: Vercel (배포)
 3. npm install
 4. npm run dev
 5. http://localhost:5173 접속
+
+환경변수 (.env)
+환경변수 파일 FE 폴더에 추가
 ```
 
 ### 폴더 구조
